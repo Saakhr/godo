@@ -1,0 +1,11 @@
+package templates
+
+templ Hello(title string,name string) {
+	@layout(title) {
+		<div class="text-red-950 text-xl flex justify-center flex-col items-center">
+    <div>
+    Hello, { name }
+    </div>
+    </div>
+	}
+}
