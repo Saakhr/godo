@@ -3,13 +3,12 @@ name := $(shell basename ${PWD})
 
 all: help
 
-.PHONY: help
-help: Makefile
-	@echo
-	@echo " Choose a make command to run"
-	@echo
-	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
-	@echo
+# .PHONY: help help: Makefile
+# 	@echo
+# 	@echo " Choose a make command to run"
+# 	@echo
+# 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
+# 	@echo
 
 ## init: initialize project (make init module=github.com/user/project)
 .PHONY: init
@@ -50,7 +49,7 @@ start:
 
 .PHONY: start-dev
 start-dev:
-	@make -j start css-watch
+	@make -j css-watch start 
 ## css: build tailwindcss
 .PHONY: css
 css:
