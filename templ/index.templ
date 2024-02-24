@@ -1,11 +1,17 @@
 package templates
 
-templ Hello(title string,name string) {
+import "github.com/Saakhr/godo/templ/comps"
+
+templ Hello(title string) {
 	@layout(title) {
-		<div class="text-red-950 text-4xl font-bold flex justify-center flex-col items-center h-screen w-screen">
-			<div>
-				Hello, { name }
+		<main class="h-screen w-screen bg-black flex flex-col items-center justify-center text-white">
+			<div class="flex flex-col justify-center items-center">
+				@components.Typography("header", "TODO LIST", "mb-12")
+				<div class="bg-gray-500 p-6 rounded-2xl shadow-lg w-full">
+					<span class="material-icons">&#xE87C;</span>
+				</div>
+				@components.Button("Submit")
 			</div>
-		</div>
+		</main>
 	}
 }

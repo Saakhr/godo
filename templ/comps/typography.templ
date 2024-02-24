@@ -1,0 +1,9 @@
+package components
+
+templ Typography(variant,label,styles string) {
+	if variant == "header" {
+		<h1 class={ "text-white", "font-sans", "text-5xl", styles }>{ label }</h1>
+	} else {
+		<p class="text-white font-sans">{ label }</p>
+	}
+}

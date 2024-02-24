@@ -1,8 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-	content: ["./**/*.templ"],
+  content: ["./**/*.templ"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: "GoblinOne",
+      },
+    },
   },
   plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
 };

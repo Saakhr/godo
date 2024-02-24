@@ -22,7 +22,7 @@ func main() {
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
-		return Render(c, http.StatusOK, templates.Hello("titre", "d"))
+		return Render(c, http.StatusOK, templates.Hello("TodoApp"))
 	})
 	e.Static("/static", "./templ/static/")
 	e.Static("/css", "./templ/css")

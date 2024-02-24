@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face{
+  font-family: GoblinOne;
+  src: url(/static/fonts/GoblinOne-Regular.ttf);
+  font-weight:normal;
+}
