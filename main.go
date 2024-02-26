@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -8,13 +9,31 @@ import (
 	"github.com/Saakhr/godo/dto"
 	templates "github.com/Saakhr/godo/templ"
 	components "github.com/Saakhr/godo/templ/comps"
-	"github.com/google/uuid"
+	"github.com/Saakhr/godo/todo"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	err := godotenv.Load()
+	db, err := sql.Open("sqlite3", "./db/todo.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	sqlStmt := `
+	create table if not exists todos (id text not null primary key, text text, checked bool);
+	`
+	a := &todo.ToDbService{
+		DB: db,
+	}
+
+	_, err = db.Exec(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
+	err = godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -24,19 +43,9 @@ func main() {
 	}
 
 	e := echo.New()
-	todos := []*dto.Todoca{
-		{
-			Id:      "12",
-			Text:    "Hello",
-			Checked: true,
-		},
-		{
-			Id:      "1312",
-			Text:    "liqua reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.",
-			Checked: false,
-		},
-	}
+
 	e.GET("/", func(c echo.Context) error {
+		todos := a.RefreshTodos()
 		return Render(c, http.StatusOK, templates.Index("TodoApp", todos))
 	})
 	e.POST("/todos", func(c echo.Context) error {
@@ -44,11 +53,8 @@ func main() {
 		if text == "" {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid text")
 		}
-		todos = append(todos, &dto.Todoca{
-			Id:      uuid.New().String(),
-			Text:    text,
-			Checked: false,
-		})
+		a.CreateTodo(text)
+		todos := a.RefreshTodos()
 		return Render(c, http.StatusOK, components.TodoCardswithbtn(todos))
 	})
 	e.PUT("/todos/:id", func(c echo.Context) error {
@@ -57,11 +63,12 @@ func main() {
 		if id == "" {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid id")
 		}
-		todo := findtodId(todos, id)
+		todo := a.RefreshTodo(id)
 		if todo == nil {
 			return echo.NewHTTPError(http.StatusNotFound, "todo item not found")
 		}
-		*&todo.Text = text
+		a.UpdateTodo(id, text, todo.Checked)
+		todos := a.RefreshTodos()
 		return Render(c, http.StatusOK, components.TodoCards(todos))
 	})
 	e.DELETE("/todos/:id", func(c echo.Context) error {
@@ -69,7 +76,8 @@ func main() {
 		if id == "" {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid id")
 		}
-		todos = filterByUserId(todos, id)
+		a.Remove(id)
+		todos := a.RefreshTodos()
 		return Render(c, http.StatusOK, components.TodoCards(todos))
 	})
 	e.GET("/components", func(c echo.Context) error {
@@ -81,24 +89,25 @@ func main() {
 		case "add-todo-btn":
 			return Render(c, http.StatusOK, components.Button("Add TODO", "mb-12", "New-Todo"))
 		case "edit-todo-input":
-			todo := findtodId(todos, id)
+			todo := a.RefreshTodo(id)
 			if todo == nil {
 				return echo.NewHTTPError(http.StatusNotFound, "todo item not found")
 			}
 			return Render(c, http.StatusOK, components.EditTodo("edit-Todo", todo))
 		case "edit-todo-btn":
-			todo := findtodId(todos, id)
+			todo := a.RefreshTodo(id)
 			if todo == nil {
 				return echo.NewHTTPError(http.StatusNotFound, "todo item not found")
 			}
 			return Render(c, http.StatusOK, components.TodoCard(*todo))
 		case "check":
-			todo := findtodId(todos, id)
+			todo := a.RefreshTodo(id)
 			if todo == nil {
 				return echo.NewHTTPError(http.StatusNotFound, "todo item not found")
 			}
 			todo.Checked = !todo.Checked
-			return echo.NewHTTPError(http.StatusOK, "checked")
+			a.UpdateTodo(id, todo.Text, todo.Checked)
+			return Render(c, http.StatusOK, components.TodoCard(*todo))
 		default:
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid req")
 		}
