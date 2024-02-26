@@ -1,0 +1,8 @@
+package components
+
+import "github.com/Saakhr/godo/dto"
+
+templ TodoCardswithbtn(todos []*dto.Todoca) {
+	@TodoCards(todos)
+	@Button("Add TODO", "mb-12", "New-Todo")
+}

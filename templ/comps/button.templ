@@ -1,5 +1,13 @@
 package components
 
-templ Button(label string) {
-	<button type="submit" class="p-2 bg-gray-700">{ label }</button>
+templ Button(label,class,name string) {
+	<button
+		type="submit"
+		id={ name }
+		class={ "p-2 bg-gray-700 rounded-2xl border border-solid border-black hover:opacity-80 active:opacity-70 hover:bg-gray-900",class }
+		hx-get="/components?type=add-todo"
+		hx-swap="outerHTML"
+		hx-trigger="click"
+		hx-target={ "#" + name }
+	>{ label }</button>
 }

@@ -1,0 +1,26 @@
+package components
+
+templ InputAddTodo(name string) {
+	<form class="flex flex-row w-full gap-4 items-center mb-12" id={ name }>
+		<input
+			type="text"
+			id="add-todoinput"
+			name="add-todoinput"
+			class="rounded-2xl flex-1 text-black font-sans text-sm"
+		/>
+		<span
+			type="submit"
+			class="material-symbols-outlined cursor-pointer hover:opacity-50"
+			hx-post="/todos"
+			hx-swap={ "multi:#" + name + ":outerHTML,#todos:outerHTML" }
+			hx-trigger="click"
+		>check</span>
+		<span
+			class="material-symbols-outlined cursor-pointer hover:opacity-50"
+			hx-get="/components?type=add-todo-btn"
+			hx-swap="outerHTML"
+			hx-trigger="click"
+			hx-target={ "#" + name }
+		>close</span>
+	</form>
+}
